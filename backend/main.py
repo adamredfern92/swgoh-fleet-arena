@@ -478,6 +478,6 @@ async def get_all_ships_roster():
 if __name__ == "__main__":
     import uvicorn
     backend_host = os.getenv('BACKEND_HOST', '0.0.0.0')
-    backend_port = int(os.getenv('BACKEND_PORT', '8001'))
+    backend_port = int(os.getenv('BACKEND_PORT', '8000'))
     uvicorn.run(app, host=backend_host, port=backend_port)
 
