@@ -24,14 +24,6 @@ npm run dev
 
 Then open `http://localhost:5173` in your browser (Vite default port).
 
-## 📖 Full Documentation
-
-See [docs/README.md](docs/README.md) for complete documentation including:
-- Detailed installation instructions
-- API documentation
-- Data methodology
-- Development guide
-
 ## 🎯 Features
 
 - **Interactive Heatmap**: Visual representation of capital ship matchup win rates across all 10x10 combinations
