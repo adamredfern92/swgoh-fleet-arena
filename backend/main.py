@@ -104,7 +104,8 @@ async def get_ships():
             "ships": [
                 {
                     "id": ship_id,
-                    "name": processor.ship_names[ship_id]
+                    "name": processor.ship_names[ship_id],
+                    "image": processor.ship_images.get(ship_id, '')
                 }
                 for ship_id in processor.capital_ships
             ]
@@ -211,6 +212,7 @@ async def get_filtered_matchup_matrix(request: FilteredMatrixRequest):
         matrix = {
             'ship_ids': processor.capital_ships,
             'ship_names': processor.ship_names,
+            'ship_images': processor.ship_images,
             'data': [],
             'seasons': season_ids
         }
@@ -386,18 +388,23 @@ async def get_defense_lineup_info(request: FilteredMatrixRequest):
             if defending_lineups:
                 most_common = max(defending_lineups.values(), key=lambda x: x['total_battles'])
 
-                # Map ship names - try uppercase first, then lowercase, then capitalized
+                # Map ship names and images - try uppercase first, then lowercase, then capitalized
                 reinforcement_names = []
+                reinforcement_images = []
                 for ship_id in most_common['reinforcements']:
                     # Try uppercase (standard format)
                     name = processor.ship_names.get(ship_id.upper())
+                    image = processor.ship_images.get(ship_id.upper(), '')
                     if not name:
                         # Try lowercase
                         name = processor.ship_names.get(ship_id.lower())
+                        image = processor.ship_images.get(ship_id.lower(), '')
                     if not name:
                         # Try as-is
                         name = processor.ship_names.get(ship_id)
+                        image = processor.ship_images.get(ship_id, '')
                     reinforcement_names.append(name or ship_id)
+                    reinforcement_images.append(image)
 
                 lineup_info.append({
                     'capitalShip': defending_id,
@@ -405,6 +412,7 @@ async def get_defense_lineup_info(request: FilteredMatrixRequest):
                     'startingShips': selected_starting_ship_ids,
                     'reinforcements': most_common['reinforcements'],
                     'reinforcementNames': reinforcement_names,
+                    'reinforcementImages': reinforcement_images,
                     'totalBattles': most_common['total_battles']
                 })
 
@@ -450,7 +458,8 @@ async def get_all_ships_roster():
             {
                 "id": ship_id,
                 "name": processor.ship_names.get(ship_id, ship_id),
-                "faction": processor.ship_factions.get(ship_id, "Other")
+                "faction": processor.ship_factions.get(ship_id, "Other"),
+                "image": processor.ship_images.get(ship_id, '')
             }
             for ship_id in processor.capital_ships
         ]

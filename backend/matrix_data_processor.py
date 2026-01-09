@@ -28,12 +28,13 @@ class MatrixDataProcessor:
         self.available_seasons = []
         self.season_data = {}  # Cache for loaded season data
 
-        # Load ship names and factions from TSV
+        # Load ship names, factions, and images from TSV
         if ships_tsv_path and Path(ships_tsv_path).exists():
-            self.ship_names, self.ship_factions = self._load_ship_data_from_tsv(ships_tsv_path)
+            self.ship_names, self.ship_factions, self.ship_images = self._load_ship_data_from_tsv(ships_tsv_path)
         else:
             self.ship_names = {}
             self.ship_factions = {}
+            self.ship_images = {}
 
         # Discover available seasons if data_dir provided
         if data_dir:
@@ -105,16 +106,18 @@ class MatrixDataProcessor:
         """Get list of available seasons."""
         return self.available_seasons
 
-    def _load_ship_data_from_tsv(self, tsv_path: str) -> tuple[Dict[str, str], Dict[str, str]]:
-        """Load ship names and factions from TSV file."""
+    def _load_ship_data_from_tsv(self, tsv_path: str) -> tuple[Dict[str, str], Dict[str, str], Dict[str, str]]:
+        """Load ship names, factions, and images from TSV file."""
         ship_names = {}
         ship_factions = {}
+        ship_images = {}
         with open(tsv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f, delimiter='\t')
             for row in reader:
                 ship_id = row.get('ship_id', '').strip()
                 ship_name = row.get('ship_name', '').strip()
                 faction = row.get('faction', '').strip()
+                image = row.get('image', '').strip()
                 if ship_id and ship_name:
                     ship_names[ship_id] = ship_name
                     # Also add lowercase version for matching
@@ -122,7 +125,10 @@ class MatrixDataProcessor:
                     if faction:
                         ship_factions[ship_id] = faction
                         ship_factions[ship_id.lower()] = faction
-        return ship_names, ship_factions
+                    if image:
+                        ship_images[ship_id] = image
+                        ship_images[ship_id.lower()] = image
+        return ship_names, ship_factions, ship_images
 
     def _map_ship_name(self, ship_id_or_name: str, is_capital_ship: bool = False) -> str:
         """
@@ -474,12 +480,13 @@ class MatrixDataProcessor:
                     ship_id = ship.upper()
                     ship_counts[ship_id] = ship_counts.get(ship_id, 0) + 1
 
-        # Sort by frequency and return top N with both ID and name
+        # Sort by frequency and return top N with ID, name, and image
         sorted_ships = sorted(ship_counts.items(), key=lambda x: x[1], reverse=True)
         return [
             {
                 'ship_id': ship_id,
-                'ship_name': self.ship_names.get(ship_id, ship_id)
+                'ship_name': self.ship_names.get(ship_id, ship_id),
+                'image': self.ship_images.get(ship_id, '')
             }
             for ship_id, _ in sorted_ships[:top_n]
         ]
@@ -511,12 +518,12 @@ class MatrixDataProcessor:
 
         return sorted(list(ships))
 
-    def get_all_regular_ships_with_factions(self) -> Dict[str, List[str]]:
+    def get_all_regular_ships_with_factions(self) -> Dict[str, List[Dict[str, str]]]:
         """
         Get all unique regular (non-capital) ships organized by faction.
 
         Returns:
-            Dictionary mapping faction names to lists of ship names
+            Dictionary mapping faction names to lists of ship objects with name, id, and image
         """
         if not self.processed_matrix:
             self.build_processed_matrix()
@@ -538,7 +545,7 @@ class MatrixDataProcessor:
                                 if ship_name not in ship_set:
                                     ship_set.add(ship_name)
 
-                                    # Find the ship ID to get faction
+                                    # Find the ship ID to get faction and image
                                     ship_id = None
                                     for sid, sname in self.ship_names.items():
                                         if sname == ship_name and not sid.startswith('CAPITAL'):
@@ -547,16 +554,22 @@ class MatrixDataProcessor:
 
                                     if ship_id:
                                         faction = self.ship_factions.get(ship_id, 'Other')
+                                        image = self.ship_images.get(ship_id, '')
                                     else:
                                         faction = 'Other'
+                                        image = ''
 
                                     if faction not in ships_by_faction:
                                         ships_by_faction[faction] = []
-                                    ships_by_faction[faction].append(ship_name)
+                                    ships_by_faction[faction].append({
+                                        'name': ship_name,
+                                        'id': ship_id if ship_id else ship_name,
+                                        'image': image
+                                    })
 
-        # Sort ships within each faction
+        # Sort ships within each faction by name
         for faction in ships_by_faction:
-            ships_by_faction[faction].sort()
+            ships_by_faction[faction].sort(key=lambda x: x['name'])
 
         return ships_by_faction
 
