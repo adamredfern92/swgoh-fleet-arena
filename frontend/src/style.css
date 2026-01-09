@@ -32,12 +32,25 @@ body {
 }
 
 .header {
-  text-align: center;
   margin-bottom: 40px;
   padding: 30px 20px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-title-section {
+  text-align: center;
+  flex: 1;
 }
 
 .header h1 {
@@ -53,6 +66,11 @@ body {
 .header p {
   color: #b0b0b0;
   font-size: 1.1rem;
+}
+
+.header-season-selector {
+  flex: 0 0 auto;
+  min-width: auto;
 }
 
 .loading {
@@ -145,18 +163,33 @@ body {
 }
 
 @media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .header-title-section {
+    width: 100%;
+  }
+
+  .header-season-selector {
+    width: 100%;
+    min-width: unset;
+  }
+
   .header h1 {
     font-size: 1.8rem;
   }
-  
+
   .header p {
     font-size: 0.95rem;
   }
-  
+
   .heatmap-container {
     padding: 15px;
   }
-  
+
   .legend-items {
     flex-direction: column;
     align-items: flex-start;

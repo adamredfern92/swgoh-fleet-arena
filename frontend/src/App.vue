@@ -1,8 +1,21 @@
 <template>
   <div id="app">
     <header class="header">
-      <h1>⚔️ SWGOH Fleet Analysis Dashboard</h1>
-      <p>Capital Ship Matchup Win Rates{{ selectedSeasonsText }}</p>
+      <div class="header-content">
+        <div class="header-title-section">
+          <h1>⚔️ SWGOH Fleet Analysis Dashboard</h1>
+          <p>Capital Ship Matchup Win Rates{{ selectedSeasonsText }}</p>
+        </div>
+        <div v-if="availableSeasons.length > 0" class="header-season-selector">
+          <SeasonSelector
+            v-model="selectedSeasons"
+            :seasons="availableSeasons"
+            :collapsible="true"
+            :initially-collapsed="true"
+            @update:modelValue="handleSeasonChange"
+          />
+        </div>
+      </div>
     </header>
 
     <div v-if="loading" class="loading">
@@ -14,11 +27,6 @@
     </div>
 
     <template v-else>
-      <SeasonSelector
-        v-model="selectedSeasons"
-        :seasons="availableSeasons"
-        @update:modelValue="handleSeasonChange"
-      />
       <FleetConfiguration
         @config-change="handleConfigChange"
       />
