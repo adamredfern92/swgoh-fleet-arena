@@ -17,24 +17,27 @@
       </div>
       
       <div class="ship-grid">
-        <label
+        <div
           v-for="ship in capitalShips"
           :key="ship.id"
-          class="ship-checkbox"
+          class="ship-card"
+          :class="{ selected: selectedCapitalShips.includes(ship.id) }"
+          @click="toggleCapitalShip(ship.id)"
+          @keydown.space.enter="toggleCapitalShip(ship.id)"
+          role="button"
+          :tabindex="0"
+          :aria-label="`Select ${ship.name}`"
+          :aria-pressed="selectedCapitalShips.includes(ship.id)"
         >
-          <input
-            type="checkbox"
-            :value="ship.id"
-            v-model="selectedCapitalShips"
-            @change="onSelectionChange"
-          />
-          <ShipImage
-            :image-url="ship.image"
-            :ship-name="ship.name"
-            size="small"
-          />
-          <span class="ship-name">{{ ship.name }}</span>
-        </label>
+          <div class="ship-image-wrapper">
+            <ShipImage
+              :image-url="ship.image"
+              :ship-name="ship.name"
+              size="large"
+            />
+          </div>
+          <span class="ship-name-overlay">{{ ship.name }}</span>
+        </div>
       </div>
     </div>
     
@@ -60,25 +63,28 @@
           </div>
         </div>
         <div class="ship-grid">
-          <label
+          <div
             v-for="ship in ships"
             :key="ship.name || ship"
-            class="ship-checkbox"
+            class="ship-card"
+            :class="{ selected: selectedRegularShips.includes(ship.name || ship) }"
+            @click="toggleRegularShip(ship.name || ship)"
+            @keydown.space.enter="toggleRegularShip(ship.name || ship)"
+            role="button"
+            :tabindex="0"
+            :aria-label="`Select ${ship.name || ship}`"
+            :aria-pressed="selectedRegularShips.includes(ship.name || ship)"
           >
-            <input
-              type="checkbox"
-              :value="ship.name || ship"
-              v-model="selectedRegularShips"
-              @change="onSelectionChange"
-            />
-            <ShipImage
-              v-if="ship.image"
-              :image-url="ship.image"
-              :ship-name="ship.name || ship"
-              size="small"
-            />
-            <span class="ship-name">{{ ship.name || ship }}</span>
-          </label>
+            <div class="ship-image-wrapper">
+              <ShipImage
+                v-if="ship.image"
+                :image-url="ship.image"
+                :ship-name="ship.name || ship"
+                size="large"
+              />
+            </div>
+            <span class="ship-name-overlay">{{ ship.name || ship }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -157,6 +163,26 @@ export default {
       onSelectionChange()
     }
 
+    const toggleCapitalShip = (shipId) => {
+      const index = selectedCapitalShips.value.indexOf(shipId)
+      if (index > -1) {
+        selectedCapitalShips.value.splice(index, 1)
+      } else {
+        selectedCapitalShips.value.push(shipId)
+      }
+      onSelectionChange()
+    }
+
+    const toggleRegularShip = (shipName) => {
+      const index = selectedRegularShips.value.indexOf(shipName)
+      if (index > -1) {
+        selectedRegularShips.value.splice(index, 1)
+      } else {
+        selectedRegularShips.value.push(shipName)
+      }
+      onSelectionChange()
+    }
+
     const onSelectionChange = () => {
       emit('update:modelValue', {
         capitalShips: selectedCapitalShips.value,
@@ -181,6 +207,8 @@ export default {
       deselectFaction,
       selectAllRegular,
       deselectAllRegular,
+      toggleCapitalShip,
+      toggleRegularShip,
       onSelectionChange
     }
   }
@@ -322,48 +350,70 @@ export default {
 
 .ship-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
 }
 
-.ship-checkbox {
+.ship-card {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  border: 3px solid transparent;
+  opacity: 0.7;
+  transform: scale(1);
+  background: #000;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.8rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
+  justify-content: center;
 }
 
-.ship-checkbox:hover {
-  background: var(--hover-bg);
+.ship-card:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
   border-color: var(--primary-color);
 }
 
-.ship-checkbox input[type="checkbox"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+.ship-card:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
-.ship-name {
-  color: var(--text-primary);
-  font-size: 0.9rem;
+.ship-card.selected {
+  opacity: 1;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 12px rgba(var(--primary-color-rgb), 0.4);
+}
+
+.ship-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.ship-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  color: white;
+  padding: 0.5rem 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   user-select: none;
-}
-
-.ship-checkbox input[type="checkbox"]:checked ~ .ship-name {
-  font-weight: 600;
-  color: var(--primary-color);
+  word-break: break-word;
+  line-height: 1.2;
 }
 
 @media (max-width: 768px) {
   .ship-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
   }
 
   .section-header {
@@ -384,6 +434,15 @@ export default {
 
   .faction-btn {
     flex: 1;
+  }
+
+  .ship-card {
+    border-width: 2px;
+  }
+
+  .ship-name-overlay {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.35rem;
   }
 }
 </style>
