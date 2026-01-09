@@ -92,47 +92,52 @@ export default {
 
 <style scoped>
 .season-selector {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .season-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 1rem;
 }
 
 .season-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .toggle-all-btn {
-  padding: 6px 12px;
-  background: #007bff;
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
-  transition: background 0.2s;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .toggle-all-btn:hover {
-  background: #0056b3;
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .season-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .season-item {
@@ -145,24 +150,34 @@ export default {
   align-items: center;
   cursor: pointer;
   user-select: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.season-checkbox:hover {
+  background: var(--hover-bg);
 }
 
 .season-checkbox input[type="checkbox"] {
-  margin-right: 8px;
+  margin-right: 0.5rem;
   cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
 }
 
 .season-label {
-  font-size: 14px;
-  color: #555;
+  font-size: 0.9rem;
+  color: var(--text-primary);
 }
 
 .selected-info {
-  font-size: 13px;
-  color: #666;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
   font-style: italic;
-  padding-top: 8px;
-  border-top: 1px solid #eee;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
 }
 </style>
 
