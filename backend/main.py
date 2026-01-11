@@ -150,6 +150,7 @@ async def get_matchup_matrix(
         simplified_matrix = {
             'ship_ids': matrix['ship_ids'],
             'ship_names': matrix['ship_names'],
+            'ship_images': matrix['ship_images'],
             'data': []
         }
 

@@ -387,6 +387,7 @@ class MatrixDataProcessor:
         matrix = {
             'ship_ids': self.capital_ships,
             'ship_names': self.ship_names,
+            'ship_images': self.ship_images,
             'matchups': {},
             'seasons': season_ids if season_ids else []
         }
