@@ -1,10 +1,66 @@
 <template>
   <div class="heatmap-container">
-    <h2 class="heatmap-title">Capital Ship Matchup Heatmap</h2>
-    <p class="heatmap-subtitle">
-      Click any cell to view detailed fleet composition and statistics
-    </p>
-    
+    <div class="heatmap-header">
+      <div class="heatmap-title-section">
+        <h2 class="heatmap-title">Capital Ship Matchup Heatmap</h2>
+        <p class="heatmap-subtitle">
+          Click any cell to view detailed fleet composition and statistics
+        </p>
+      </div>
+      <div class="heatmap-info-icon-wrapper">
+        <button
+          class="heatmap-info-icon"
+          @click="toggleLegendTooltip"
+          @mouseenter="showLegendTooltip = true"
+          @mouseleave="showLegendTooltip = false"
+          title="How to read the heatmap"
+        >
+          ⓘ
+        </button>
+        <div v-if="showLegendTooltip" class="legend-tooltip">
+          <div class="legend-tooltip-content">
+            <h4>📊 How to Read the Heatmap</h4>
+
+            <div class="legend-section">
+              <h5>Color Coding:</h5>
+              <div class="legend-items">
+                <div class="legend-item">
+                  <div class="legend-color" style="background: rgba(255, 0, 0, 0.5);"></div>
+                  <span class="legend-label">0-25% Win Rate (Poor)</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: rgba(255, 128, 0, 0.5);"></div>
+                  <span class="legend-label">25-50% Win Rate (Below Average)</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: rgba(255, 255, 0, 0.5);"></div>
+                  <span class="legend-label">50-75% Win Rate (Good)</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: rgba(128, 255, 0, 0.5);"></div>
+                  <span class="legend-label">75-100% Win Rate (Excellent)</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background: rgba(100, 100, 100, 0.2);"></div>
+                  <span class="legend-label">No Data Available</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="legend-section">
+              <h5>Methodology:</h5>
+              <ul class="methodology-list">
+                <li>Each cell shows the <strong>best win rate</strong> for the attacking ship vs defending ship</li>
+                <li>Data is filtered to show only matchups with <strong>10+ battles</strong> for statistical significance</li>
+                <li>Numbers in parentheses show the <strong>battle count</strong> for that matchup</li>
+                <li><strong>Click any cell</strong> to view detailed fleet compositions and statistics</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="table-wrapper">
       <table class="heatmap-table">
         <thead>
@@ -64,7 +120,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import ShipImage from './ShipImage.vue'
 
 export default {
@@ -84,6 +140,7 @@ export default {
   },
   emits: ['cell-click'],
   setup(props, { emit }) {
+    const showLegendTooltip = ref(false)
     const shipList = computed(() => {
       if (!props.matchupData?.data) return []
 
@@ -204,6 +261,10 @@ export default {
       }
     }
 
+    const toggleLegendTooltip = () => {
+      showLegendTooltip.value = !showLegendTooltip.value
+    }
+
     return {
       shipList,
       attackingShipList,
@@ -212,13 +273,176 @@ export default {
       getCellClass,
       getCellStyle,
       getCellTooltip,
-      handleCellClick
+      handleCellClick,
+      showLegendTooltip,
+      toggleLegendTooltip
     }
   }
 }
 </script>
 
 <style scoped>
+.heatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.heatmap-title-section {
+  flex: 1;
+}
+
+.heatmap-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #667eea;
+  text-align: center;
+}
+
+.heatmap-subtitle {
+  text-align: center;
+  color: #b0b0b0;
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.heatmap-info-icon-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.heatmap-info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  color: #667eea;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-weight: bold;
+}
+
+.heatmap-info-icon:hover {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.legend-tooltip {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  z-index: 1000;
+  animation: tooltipSlideDown 0.2s ease-out;
+  width: 550px;
+}
+
+@keyframes tooltipSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-tooltip-content {
+  background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  width: 100%;
+}
+
+.legend-tooltip-content h4 {
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  color: #667eea;
+}
+
+.legend-section {
+  margin-bottom: 20px;
+}
+
+.legend-section:last-child {
+  margin-bottom: 0;
+}
+
+.legend-section h5 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: #b0b0b0;
+  font-weight: 500;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-color {
+  width: 40px;
+  height: 25px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 0.85rem;
+  color: #d0d0d0;
+}
+
+.methodology-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.methodology-list li {
+  padding-left: 20px;
+  position: relative;
+  color: #d0d0d0;
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+
+.methodology-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.methodology-list strong {
+  color: #fff;
+}
+
 .table-wrapper {
   overflow-x: auto;
   margin-top: 20px;
@@ -337,6 +561,36 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .heatmap-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .heatmap-title-section {
+    width: 100%;
+  }
+
+  .heatmap-info-icon-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .legend-tooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+  }
+
+  .legend-tooltip-content {
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
   .heatmap-table {
     font-size: 0.75rem;
   }

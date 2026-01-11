@@ -146,6 +146,7 @@ body {
   padding: 30px;
   overflow-x: auto;
   backdrop-filter: blur(10px);
+  margin-bottom: 40px;
 }
 
 .heatmap-title {

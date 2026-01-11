@@ -27,14 +27,13 @@
     </div>
 
     <template v-else>
-      <FleetConfiguration
-        @config-change="handleConfigChange"
-      />
-      <Legend />
       <HeatmapTable
         :matchupData="filteredMatchupData"
         :fleetConfig="fleetConfig"
         @cell-click="handleCellClick"
+      />
+      <FleetConfiguration
+        @config-change="handleConfigChange"
       />
       <AttackStrategy
         :matchupData="filteredMatchupData"
@@ -54,7 +53,6 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import HeatmapTable from './components/HeatmapTable.vue'
-import Legend from './components/Legend.vue'
 import MatchupModal from './components/MatchupModal.vue'
 import FleetConfiguration from './components/FleetConfiguration.vue'
 import AttackStrategy from './components/AttackStrategy.vue'
@@ -64,7 +62,6 @@ export default {
   name: 'App',
   components: {
     HeatmapTable,
-    Legend,
     MatchupModal,
     FleetConfiguration,
     AttackStrategy,
